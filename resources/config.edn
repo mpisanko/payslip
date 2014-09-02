@@ -1,0 +1,15 @@
+{
+  :tax-rates [
+               {:lower-bound 0 :upper-bound 18200 :base-amount 0 :percentage 0.0}
+               {:lower-bound 18201 :upper-bound 37000 :base-amount 0 :percentage 0.19}
+               {:lower-bound 37001 :upper-bound 80000 :base-amount 3572 :percentage 0.325}
+               {:lower-bound 80000 :upper-bound 180000 :base-amount 17547 :percentage 0.37}
+               {:lower-bound 180001 :upper-bound 9999999999999 :base-amount 54547 :percentage 0.45}
+             ]
+  :number-of-periods-per-year 12
+  :headers [:name :pay-period :gross-income :income-tax :net-income :super]
+  :header-names {:name "name" :pay-period "pay period" :gross-income "gross income"
+                 :income-tax "income tax" :net-income "net income" :super "super"}
+  :input-file-name "input.csv"
+  :report-file-name "payslips.csv"
+}
