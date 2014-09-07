@@ -18,20 +18,40 @@
     (->IncomeTaxCalculator (config/tax-rates))
     (->MonthlyPayPeriodCalculator)))
 
+(def result-presenter 
+  (->CsvResultPresenter (config/headers) (config/header-names)))
+
+(def input-parser 
+  (->CsvInputParser (->InputValidator)))
+
 (defn- calculate-result
   [payslip]
   (process-payslip processor payslip))
+
+(defn- parse-input-partial
+  [metadata]
+  (partial parse-input input-parser metadata))
+
+(defn- calculate-result-from-parsed-input
+  [metadata]
+  (comp calculate-result (parse-input-partial metadata)))
+
+(defn- present
+  [payslip]
+  (present-result result-presenter payslip))
+
+(defn- write-line
+  [writer line]
+  (.write writer (str line "\n")))
 
 (defn -main
   [& args]
   (println "Processing: " (config/input-file-name))
   (with-open [reader (io/reader (config/input-file-name))
               writer (io/writer (config/report-file-name))]
-    (let [input-parser (->CsvInputParser (->InputValidator))
-          lines (line-seq reader)
-          metadata (parse-metadata input-parser (first lines))
-          result-presenter (->CsvResultPresenter (config/headers) (config/header-names) writer)]
+    (let [lines (line-seq reader)
+          metadata (parse-metadata input-parser (first lines))]
       (do
-        (present-metadata result-presenter)
-        (doseq [payslip (map calculate-result (map (partial parse-input input-parser metadata) (rest lines)))]
-          (present-result result-presenter payslip))))))
+        (write-line writer (present-metadata result-presenter))
+        (doseq [payslip (map (calculate-result-from-parsed-input metadata) (rest lines))]
+          (write-line writer (present payslip)))))))

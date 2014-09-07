@@ -3,8 +3,6 @@
             [clojure.set :refer [rename-keys]]
             [clj-time.format :as f]))
 
-;; There might be another entity lurking here: a sink to dump data into (to decouple presenting from mechanism which 'writes' to the sink)
-
 (defprotocol ResultPresenter
   "Abstracts presenting results - a collection of CalculatedPayslips"
   (present-metadata [presenter]
@@ -51,7 +49,7 @@
   (merge (rename-keys (:errors record) {:payment-start-date :pay-period})))
 
 (defn- adapt-result
-  "wraps calculated payslip into format suitable for CSV presenter"
+  "wraps calculated payslip in structure suitable for CSV presenter"
   [result]
   (map->CalculatedPayslipAdapter
     (merge
@@ -64,22 +62,17 @@
   [headers result]
   (generate-csv-line headers (adapt-result result)))
 
-(defn- append-line-separator
-  [line]
-  (str line "\n"))
-
 (defn- header-line
   [headers header-names]
-  (append-line-separator (generate-csv-line headers header-names)))
+  (generate-csv-line headers header-names))
 
 (defn- generate-csv-contents
   [headers result]
-  (append-line-separator (format-result-csv headers result)))
+  (format-result-csv headers result))
 
-(deftype CsvResultPresenter [headers header-names writer]
+(deftype CsvResultPresenter [headers header-names]
   ResultPresenter
   (present-metadata [_]
-    (.write writer (header-line headers header-names)))
+    (header-line headers header-names))
   (present-result [_ result]
-    (let [contents-line (generate-csv-contents headers result)]
-      (.write writer contents-line))))
+    (generate-csv-contents headers result)))
