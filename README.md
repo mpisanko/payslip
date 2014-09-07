@@ -80,8 +80,8 @@ export PAYSLIP_CFG='{
   :report-file-name "payslips.csv"
 }'
 ```
-You can run it either:
- - using leiningen (from the root directory containing project.clj): `lein run`
+You can run it either:  
+ - using leiningen (from the root directory containing project.clj): `lein run`  
  - or create an executable by executing (again from the root directory containing project.clj): `lein uberjar`
    and then running it with java: java -jar target/payslip-0.0.1-standalone.jar
 
