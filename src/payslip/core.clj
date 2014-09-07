@@ -27,9 +27,11 @@
   (println "Processing: " (config/input-file-name))
   (with-open [reader (io/reader (config/input-file-name))
               writer (io/writer (config/report-file-name))]
-    (let [input-parser (->CsvInputParser reader (->InputValidator))
+    (let [input-parser (->CsvInputParser (->InputValidator))
+          lines (line-seq reader)
+          metadata (parse-metadata input-parser (first lines))
           result-presenter (->CsvResultPresenter (config/headers) (config/header-names) writer)]
       (do
         (present-metadata result-presenter)
-        (doseq [payslip (map calculate-result (parse-input input-parser))]
+        (doseq [payslip (map calculate-result (map (partial parse-input input-parser metadata) (rest lines)))]
           (present-result result-presenter payslip))))))

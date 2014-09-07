@@ -6,14 +6,12 @@
             [payslip.models.input :refer :all]
             [payslip.validators.validators :refer :all]))
 
-;; There might be another entity lurking here: source provider (to decouple parsing from mechanism which 'reads' the source)
-;; The idea would be to have a number of different formats / input media - and their associated parsers
-;; adding records to a queue - from where they can be picked up by a processor - but not before there is an actual requirement for that
-
 (defprotocol InputParser
   "Abstracts parsing input from some source"
-  (parse-input [parser]
-  "Parse specific input format"))
+  (parse-metadata [parser raw-metadata]
+    "Parse metadata for specific format")
+  (parse-input [parser metadata record]
+    "Parse specific input format"))
 
 
 (defn- split-fields
@@ -64,11 +62,11 @@
         input-slip (create-input-payslip keyed-record)]
     (merge input-slip (errors validator input-slip))))
 
-(deftype CsvInputParser [reader validator]
+(deftype CsvInputParser [validator]
   InputParser
+  (parse-metadata
+    [_ raw-metadata]
+    (headers raw-metadata))
   (parse-input
-    [_]
-    (let [lines (line-seq reader)
-          headers (headers (first lines))]
-      (lazy-seq
-        (map (partial parse-body headers validator) (rest lines))))))
+    [_ metadata record]
+    (parse-body metadata validator record)))
