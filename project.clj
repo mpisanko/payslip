@@ -6,6 +6,6 @@
   :dependencies [[org.clojure/clojure "1.6.0"]
                  [org.clojure/math.numeric-tower "0.0.4"]
                  [clj-time "0.8.0"]]
-  :profiles {:dev {:dependencies [[midje "1.6.3"]
-                                  [lein-midje "3.1.3"]]}}
+  :profiles {:dev {:dependencies [[midje "1.6.3"]]
+                   :plugins [[lein-midje "3.1.3"]]}}
   :main payslip.core)
